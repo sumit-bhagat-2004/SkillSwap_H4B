@@ -25,6 +25,7 @@ export const saveAuthenticatedUser = async (req, res) => {
       skills: [],
       certificates: [],
       projects: [],
+      availabitity: [],
       avatar: profileImageUrl,
       location: "",
       role: "",
@@ -48,9 +49,9 @@ export const onboardUser = async (req, res) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const { skills, projects, location, role } = req.body;
+    const { skills, projects, location, role, availability } = req.body;
 
-    if (!skills || !projects || !location || !role) {
+    if (!skills || !projects || !location || !role || !availability) {
       return res.status(401).json({ message: "Nothing to update" });
     }
 
@@ -77,6 +78,7 @@ export const onboardUser = async (req, res) => {
           projects: projects?.split(",").map((p) => p.trim()) || [],
           location,
           role,
+          availabitity: availability?.split(",").map((d) => d.trim()) || [],
         },
         $push: {
           certificates: { $each: certificateUrls },
@@ -93,6 +95,28 @@ export const onboardUser = async (req, res) => {
       message: "User onboarded successfully",
       user: updatedUser,
     });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getUserDetails = async (req, res) => {
+  try {
+    const { userId: authUserId } = getAuth(req);
+
+    if (!authUserId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const clerkId = req.params.clerkId || authUserId;
+
+    const user = await User.findOne({ clerkId });
+
+    if (!user) {
+      return res.status(404).json({ message: "No user found" });
+    }
+
+    res.status(200).json({ user });
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });
   }
