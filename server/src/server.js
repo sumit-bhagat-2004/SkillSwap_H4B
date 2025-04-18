@@ -2,9 +2,10 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { connectDb } from "./db/db.js";
-import userRoutes from "./routes/user.routes.js";
 import http from "http";
 import { Server } from "socket.io";
+import userRoutes from "./routes/user.routes.js";
+import requestRoutes from "./routes/request.routes.js";
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use(express.json());
 app.use(express.urlencoded());
 
 app.use("/api/user", userRoutes);
+app.use("/api/request", requestRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello world");
@@ -38,6 +40,18 @@ io.on("connection", (socket) => {
   socket.on("join_room", (roomId) => {
     socket.join(roomId);
     socket.to(roomId).emit("user_joined", socket.id);
+  });
+
+  socket.on("offer", ({ offer, roomId }) => {
+    socket.to(roomId).emit("receive_offer", offer);
+  });
+
+  socket.on("answer", ({ answer, roomId }) => {
+    socket.to(roomId).emit("receive-answer", answer);
+  });
+
+  socket.on("ice-candidate", ({ candidate, roomId }) => {
+    socket.to(roomId).emit("receive-candidate", candidate);
   });
 });
 

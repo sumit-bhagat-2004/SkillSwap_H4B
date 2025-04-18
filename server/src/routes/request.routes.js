@@ -2,6 +2,7 @@ import express from "express";
 import { clerkAuthMiddleware } from "../middlewares/clerkAuth.js";
 import { requireAuth } from "@clerk/express";
 import {
+  getPendingRequests,
   respondRequest,
   sendRequest,
 } from "../controllers/request.controller.js";
@@ -14,6 +15,12 @@ router.put(
   clerkAuthMiddleware,
   requireAuth(),
   respondRequest
+);
+router.get(
+  "/get-requests",
+  clerkAuthMiddleware,
+  requireAuth(),
+  getPendingRequests
 );
 
 export default router;
