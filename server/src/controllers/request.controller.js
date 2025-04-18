@@ -71,3 +71,22 @@ export const respondRequest = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const getPendingRequests = async (req, res) => {
+  try {
+    const currentUser = await User.findOne({ clerkId: userId });
+    if (!currentUser)
+      return res.status(404).json({ message: "User not found" });
+
+    const requests = await Request.find({
+      toUser: currentUser._id,
+      status: "pending",
+    })
+      .populate("fromUser", "firstName avatar")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ requests });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
