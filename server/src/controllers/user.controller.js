@@ -1,5 +1,6 @@
 import { getAuth } from "@clerk/express";
 import { User } from "../models/user.model.js";
+import cloudinary from "../../lib/cloudinary.js";
 
 export const saveAuthenticatedUser = async (req, res) => {
   try {
@@ -35,6 +36,64 @@ export const saveAuthenticatedUser = async (req, res) => {
       .status(200)
       .json({ message: "User saved successfully and saved to db", newUser });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const onboardUser = async (req, res) => {
+  try {
+    const { userId } = getAuth(req);
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const { skills, projects, location, role } = req.body;
+
+    if (!skills || !projects || !location || !role) {
+      return res.status(401).json({ message: "Nothing to update" });
+    }
+
+    let certificateUrls = [];
+
+    for (const file of req.files) {
+      const base64Image = `data:${file.mimetype};base64,${file.buffer.toString(
+        "base64"
+      )}`;
+
+      const uploaded = await cloudinary.uploader.upload(base64Image, {
+        folder: "certificates",
+        resource_type: "image",
+      });
+
+      certificateUrls.push(uploaded.secure_url);
+    }
+
+    const updatedUser = await User.findOneAndUpdate(
+      { clerkId: userId },
+      {
+        $set: {
+          skills: skills?.split(",").map((s) => s.trim()) || [],
+          projects: projects?.split(",").map((p) => p.trim()) || [],
+          location,
+          role,
+        },
+        $push: {
+          certificates: { $each: certificateUrls },
+        },
+      },
+      { new: true, upsert: false }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found in database" });
+    }
+
+    res.status(200).json({
+      message: "User onboarded successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
