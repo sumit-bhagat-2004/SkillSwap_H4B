@@ -2,10 +2,11 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { connectDb } from "./db/db.js";
+import userRoutes from "./routes/user.routes.js";
 
 dotenv.config();
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 
 const app = express();
 
@@ -16,10 +17,14 @@ app.use(
     credentials: true,
   })
 );
+app.use(express.json());
+app.use(express.urlencoded());
 
 app.get("/", (req, res) => {
   res.send("Hello world");
 });
+
+app.use("/api/user", userRoutes);
 
 app.listen(PORT, () => {
   connectDb()
