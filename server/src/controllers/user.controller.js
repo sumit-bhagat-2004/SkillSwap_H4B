@@ -35,7 +35,7 @@ export const saveAuthenticatedUser = async (req, res) => {
       avatar: clerkUser.image_url,
       skills: [],
       certificates: [],
-      availabitity: [],
+      availability: [],
       projects: [],
       role: "",
       location: "",
@@ -91,7 +91,7 @@ export const onboardUser = async (req, res) => {
           projects: projects?.split(",").map((p) => p.trim()) || [],
           location,
           role,
-          availabitity: availability?.split(",").map((d) => d.trim()) || [],
+          availability: availability?.split(",").map((d) => d.trim()) || [],
           isOnBoarded: true,
         },
         $push: {

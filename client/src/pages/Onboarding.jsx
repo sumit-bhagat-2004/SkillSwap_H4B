@@ -52,7 +52,7 @@ const Onboarding = () => {
           "Content-Type": "multipart/form-data",
         },
       });
-      navigate("/dashboard");
+      navigate("/profile");
     } catch (err) {
       console.error("Onboarding failed", err);
     } finally {

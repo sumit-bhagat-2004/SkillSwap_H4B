@@ -4,6 +4,7 @@ import { Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import Footer from "./components/Footer";
 import Onboarding from "./pages/Onboarding";
+import Profile from "./pages/Profile";
 
 const App = () => {
   return (
@@ -12,6 +13,8 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile/:clerkId" element={<Profile />} />
       </Routes>
       <Footer />
     </div>
