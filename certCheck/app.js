@@ -1,19 +1,26 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const { ClerkExpressWithAuth } = require('@clerk/clerk-sdk-node');
-const verifyRoute = require('./routes/verifyRoute');
+const express = require("express");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const verifyRoute = require("./routes/verifyRoute");
+const cors = require("cors");
 
 dotenv.config();
-
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// Clerk Auth Middleware
-//app.use(ClerkExpressWithAuth());
-
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 app.use(express.json());
-app.use('/api/verify', verifyRoute);
+app.use("/api", verifyRoute);
 
-app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
-});
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("MongoDB Connected");
+    app.listen(5000, () => console.log("Server running on port 5000"));
+  })
+  .catch((err) => console.error("MongoDB connection error:", err));
