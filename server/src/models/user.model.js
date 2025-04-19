@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema(
         default: [],
       },
     ],
-    availabitity: [
+    availability: [
       {
         type: String,
         default: [],
