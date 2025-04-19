@@ -24,9 +24,15 @@ async def disconnect(sid):
             rooms[room].remove(sid)
             await sio.emit("user_left", {"username": user["username"]}, room=room)
             if not rooms[room]:
-                del rooms[room]  # clean up empty room
-                del room_code_map[room]  # clean up room code
+                del rooms[room]  # Clean up empty room
+                del room_code_map[room]  # Clean up room code
         del user_sid_map[sid]
+    for room_id, sids in rooms.items():
+        if sid in sids:
+            sids.remove(sid)
+            await sio.emit("peer_list", {"peers": sids}, room=room_id)
+            print(f"Client {sid} left video room {room_id}")
+            break
 
 @sio.event
 async def join_room(sid, data):
@@ -81,6 +87,31 @@ async def join_room(sid, data):
     await sio.emit("user_joined", {"username": username}, room=room)
     print(f"{username} joined room {room}")
 
+# WebRTC signaling for video calls
+@sio.event
+async def offer(sid, data):
+    room = user_sid_map.get(sid, {}).get("room", "unknown")
+    sdp = data["sdp"]
+    print(f"Offer received from {sid} in room {room}")  # Log the offer
+    await sio.emit("offer", {"sdp": sdp, "sid": sid}, room=room, skip_sid=sid)  # Broadcast the offer
+
+@sio.event
+async def answer(sid, data):
+    room = user_sid_map.get(sid, {}).get("room", "unknown")
+    sdp = data["sdp"]
+    print(f"Answer received from {sid} in room {room}")  # Log the answer
+    await sio.emit("answer", {"sdp": sdp, "sid": sid}, room=room, skip_sid=sid)  # Broadcast the answer
+
+@sio.event
+async def ice_candidate(sid, data):
+    room = user_sid_map.get(sid, {}).get("room", "unknown")
+    candidate = data.get("candidate")
+    if not candidate:
+        print(f"ICE candidate missing from {sid} in room {room}")
+        return
+    print(f"ICE candidate received from {sid} in room {room}")  # Log the ICE candidate
+    await sio.emit("ice_candidate", {"candidate": candidate, "sid": sid}, room=room, skip_sid=sid)  # Broadcast the ICE candidate
+
 @sio.event
 async def code_change(sid, data):
     user = user_sid_map.get(sid)
@@ -126,3 +157,17 @@ async def language_change(sid, data):
     language_id = data["language_id"]
     room_language_map[room] = language_id  # Update the room's current language
     await sio.emit("language_change", {"language_id": language_id}, room=room, skip_sid=sid)
+
+@sio.event
+async def join_video_room(sid, data):
+    room_id = data["roomId"]
+    if room_id not in rooms:
+        rooms[room_id] = []
+    if sid not in rooms[room_id]:  # Prevent duplicate joins
+        rooms[room_id].append(sid)
+        user_sid_map[sid] = {"room": room_id}
+
+    # Notify all users in the room about the updated peer list
+    await sio.emit("peer_list", {"peers": rooms[room_id]}, room=room_id)
+    sio.enter_room(sid, room_id)
+    print(f"Client {sid} joined video room {room_id}")
