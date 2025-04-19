@@ -1,15 +1,25 @@
 import { getAuth } from "@clerk/express";
 import { User } from "../models/user.model.js";
 import cloudinary from "../../lib/cloudinary.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const saveAuthenticatedUser = async (req, res) => {
   try {
-    const { userId, emailAddresses, firstName, lastName, profileImageUrl } =
-      getAuth(req);
+    const { userId } = getAuth(req);
 
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
+
+    const clerkRes = await fetch(`https://api.clerk.dev/v1/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
+      },
+    });
+
+    const clerkUser = await clerkRes.json();
 
     const existingUser = await User.findOne({ clerkId: userId });
 
@@ -19,16 +29,16 @@ export const saveAuthenticatedUser = async (req, res) => {
 
     const newUser = await User.create({
       clerkId: userId,
-      email: emailAddresses[0]?.emailAddress,
-      firstName,
-      lastName,
+      email: clerkUser.email_addresses[0]?.email_address,
+      firstName: clerkUser.first_name,
+      lastName: clerkUser.last_name,
+      avatar: clerkUser.image_url,
       skills: [],
       certificates: [],
-      projects: [],
       availabitity: [],
-      avatar: profileImageUrl,
-      location: "",
+      projects: [],
       role: "",
+      location: "",
     });
 
     await newUser.save();
@@ -37,7 +47,9 @@ export const saveAuthenticatedUser = async (req, res) => {
       .status(200)
       .json({ message: "User saved successfully and saved to db", newUser });
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
+    console.log(error);
+
+    return res.status(500).json({ message: "Internal server error", error });
   }
 };
 
