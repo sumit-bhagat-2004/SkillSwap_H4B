@@ -1,37 +1,40 @@
-const extractTextFromUrl = require("../utils/extractText");
-const User = require("../models/User");
+const extractCertificateData = require('../utils/extractCertificateData');
 
-function extractDetails(text) {
-  const lower = text.toLowerCase();
-  const course = text.match(/course[:\-]?\s*(.*)/i)?.[1] || "N/A";
-  const name = text.match(/name[:\-]?\s*(.*)/i)?.[1] || "N/A";
-  const status = lower.includes("completed") ? "Completed" : "Not Found";
-  const dateMatch = text.match(/\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4}/);
-  const date = dateMatch ? dateMatch[0] : "N/A";
+module.exports = async function verifyCertificate(req, res){
+  const { certificateUrl } = req.body;
 
-  return { course, name, status, date };
-}
+  try {
+    // Extract details from certificate (image or page)
+    const extracted = await extractCertificateData(certificateUrl);
 
-exports.verifyCertificate = async (req, res) => {
-  const { certificateUrl, userId } = req.body;
+    // Get logged-in user from Clerk middleware
+    const clerkUser = req.auth.user;
 
-  if (!certificateUrl || !userId) {
-    return res.status(400).json({ error: "Missing certificate URL or user ID" });
+    if (!clerkUser) {
+      return res.status(401).json({ verified: false, message: "Not authenticated" });
+    }
+
+    const userName = `John Doe`.trim();
+
+    // Compare names (case insensitive)
+    if (userName.toLowerCase() === extracted.name.toLowerCase()) {
+      res.json({
+        verified: true,
+        matchedName: userName,
+        certificateData: extracted,
+      });
+    } else {
+      res.json({
+        verified: false,
+        reason: 'Name mismatch',
+        expected: userName,
+        found: extracted.name,
+        certificateData: extracted,
+      });
+    }
+
+  } catch (error) {
+    console.error("Verification failed:", error);
+    res.status(500).json({ verified: false, error: error.message });
   }
-
-  const user = await User.findById(userId);
-  if (!user) return res.status(404).json({ error: "User not found" });
-
-  const rawText = await extractTextFromUrl(certificateUrl);
-  if (!rawText) return res.status(500).json({ error: "Failed to extract certificate details" });
-
-  const details = extractDetails(rawText);
-
-  const isVerified = details.name.toLowerCase().includes(user.name.toLowerCase());
-
-  res.json({
-    extractedDetails: details,
-    isVerified,
-    matchedWith: user.name
-  });
 };
