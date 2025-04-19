@@ -1,22 +1,19 @@
 import React from "react";
 import Navbar from "./components/Navbar";
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-} from "@clerk/clerk-react";
+import { Route, Routes } from "react-router-dom";
+import Home from "./pages/Home";
+import Footer from "./components/Footer";
+import Onboarding from "./pages/Onboarding";
 
 const App = () => {
   return (
-    <div className="font-extrabold">
+    <div className="min-h-screen">
       <Navbar />
-      <SignedOut>
-        <SignInButton mode="modal" />
-      </SignedOut>
-      <SignedIn>
-        <UserButton />
-      </SignedIn>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/onboarding" element={<Onboarding />} />
+      </Routes>
+      <Footer />
     </div>
   );
 };
