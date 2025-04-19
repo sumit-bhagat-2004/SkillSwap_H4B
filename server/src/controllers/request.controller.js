@@ -1,6 +1,7 @@
 import { getAuth } from "@clerk/express";
 import { User } from "../models/user.model.js";
 import { Request } from "../models/request.model.js";
+import { Exchange } from "../models/exchange.model.js";
 
 export const sendRequest = async (req, res) => {
   try {
@@ -62,6 +63,31 @@ export const respondRequest = async (req, res) => {
 
     if (!updatedRequest) {
       return res.status(404).json({ message: "Request not found" });
+    }
+
+    if (status === "accepted") {
+      const newExchange = await Exchange.create({
+        participants: [
+          {
+            userId: updatedRequest.toUser._id,
+            teaches: updatedRequest.skillToTeach,
+            learns: updatedRequest.skillToLearn,
+          },
+          {
+            userId: updatedRequest.fromUser._id,
+            teaches: updatedRequest.skillToLearn,
+            learns: updatedRequest.skillToTeach,
+          },
+        ],
+        nextSession: new Date(Date.now() * 3 * 24 * 60 * 60 * 1000),
+      });
+
+      await Request.findByIdAndDelete(requestId);
+
+      return res.status(200).json({
+        message: "Request accepted and exchange created",
+        exchange: newExchange,
+      });
     }
 
     return res

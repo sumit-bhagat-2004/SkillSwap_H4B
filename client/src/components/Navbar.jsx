@@ -67,6 +67,25 @@ const Navbar = () => {
     syncUserToDB();
   }, [isSignedIn]);
 
+  const respondToRequest = async (requestId, action) => {
+    try {
+      const token = await getToken();
+      await axiosInstance.put(
+        `/request/respond/${requestId}`,
+        { status: action },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setRequests((prev) => prev.filter((r) => r._id !== requestId));
+    } catch (err) {
+      console.error(`Failed to ${action} request:`, err);
+      alert(`Could not ${action} request`);
+    }
+  };
+
   return (
     <>
       <nav className="bg-white border-b border-gray-200 px-4 lg:px-6 py-3.5">
@@ -177,6 +196,21 @@ const Navbar = () => {
                     <p className="text-xs text-gray-400 mt-1">
                       Requested at: {new Date(req.createdAt).toLocaleString()}
                     </p>
+
+                    <div className="mt-3 flex space-x-2">
+                      <button
+                        className="px-3 py-1 text-sm text-white bg-teal-600 rounded hover:bg-teal-700"
+                        onClick={() => respondToRequest(req._id, "accepted")}
+                      >
+                        Accept
+                      </button>
+                      <button
+                        className="px-3 py-1 text-sm text-red-600 border border-red-600 rounded hover:bg-red-100"
+                        onClick={() => respondToRequest(req._id, "declined")}
+                      >
+                        Decline
+                      </button>
+                    </div>
                   </li>
                 ))}
               </ul>
