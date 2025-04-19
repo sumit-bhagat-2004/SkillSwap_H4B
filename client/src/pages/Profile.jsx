@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useUser, useAuth } from "@clerk/clerk-react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { axiosInstance } from "../lib/axiosInstance";
+import axios from "axios";
 
 const ProfilePage = () => {
   const { isSignedIn, getToken } = useAuth();
@@ -9,6 +10,8 @@ const ProfilePage = () => {
   const { clerkId } = useParams();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [verificationResults, setVerificationResults] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -24,6 +27,27 @@ const ProfilePage = () => {
         });
 
         setProfile(res.data.user);
+
+        if (!clerkId && res.data.user?.certificates?.length) {
+          const results = await Promise.all(
+            res.data.user.certificates.map(async (url) => {
+              try {
+                const verifyRes = await axios.post(
+                  "http://localhost:5000/api/verify",
+                  {
+                    certificateUrl: url,
+                    userId: res.data.user._id,
+                  }
+                );
+                return verifyRes.data;
+              } catch (err) {
+                console.error("Verification error:", err);
+                return { isVerified: false, extractedDetails: null };
+              }
+            })
+          );
+          setVerificationResults(results);
+        }
       } catch (err) {
         console.error("Failed to fetch profile:", err);
       } finally {
@@ -94,7 +118,8 @@ const ProfilePage = () => {
             📅 Availability
           </h2>
           <p className="text-gray-600">
-            {profile.availability?.join(", ") || "Not specified"}
+            {(profile.availability || profile.availabitity)?.join(", ") ||
+              "Not specified"}
           </p>
         </div>
       </div>
@@ -106,12 +131,26 @@ const ProfilePage = () => {
         {profile.certificates?.length > 0 ? (
           <div className="flex flex-wrap gap-4">
             {profile.certificates.map((url, idx) => (
-              <img
-                key={idx}
-                src={url}
-                alt={`certificate-${idx}`}
-                className="w-40 h-40 object-cover rounded-xl border border-gray-200 shadow-sm"
-              />
+              <div key={idx} className="flex flex-col items-center">
+                <img
+                  src={url}
+                  alt={`certificate-${idx}`}
+                  className="w-40 h-40 object-cover rounded-xl border border-gray-200 shadow-sm"
+                />
+                {verificationResults[idx] && (
+                  <div
+                    className={`mt-2 text-sm font-medium ${
+                      verificationResults[idx].isVerified
+                        ? "text-green-600"
+                        : "text-red-500"
+                    }`}
+                  >
+                    {verificationResults[idx].isVerified
+                      ? "Verified ✅"
+                      : "Not Verified ❌"}
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         ) : (
