@@ -1,6 +1,7 @@
 import express from "express";
 import { clerkAuthMiddleware } from "../middlewares/clerkAuth.js";
 import {
+  getMatchingUsers,
   getUserDetails,
   onboardUser,
   saveAuthenticatedUser,
@@ -24,6 +25,12 @@ router.get(
   clerkAuthMiddleware,
   requireAuth(),
   getUserDetails
+);
+router.get(
+  "/match-users",
+  clerkAuthMiddleware,
+  requireAuth(),
+  getMatchingUsers
 );
 
 export default router;

@@ -55,6 +55,18 @@ const userSchema = new mongoose.Schema(
         default: [],
       },
     ],
+    skillsToLearn: [
+      {
+        type: String,
+        default: [],
+      },
+    ],
+    experience: {
+      type: String,
+    },
+    experienceType: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

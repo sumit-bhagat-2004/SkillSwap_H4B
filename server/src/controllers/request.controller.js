@@ -74,6 +74,7 @@ export const respondRequest = async (req, res) => {
 
 export const getPendingRequests = async (req, res) => {
   try {
+    const { userId } = getAuth(req);
     const currentUser = await User.findOne({ clerkId: userId });
     if (!currentUser)
       return res.status(404).json({ message: "User not found" });
@@ -87,6 +88,8 @@ export const getPendingRequests = async (req, res) => {
 
     res.status(200).json({ requests });
   } catch (error) {
+    console.log(error);
+
     return res.status(500).json({ message: "Internal server error" });
   }
 };

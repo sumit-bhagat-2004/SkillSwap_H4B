@@ -15,6 +15,9 @@ const Onboarding = () => {
     role: "",
     availability: "",
     certificates: [],
+    skillsToLearn: "",
+    experience: "",
+    experienceType: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -94,6 +97,34 @@ const Onboarding = () => {
           onChange={handleChange}
           className="w-full border border-gray-300 p-2 rounded-lg"
           required
+        />
+
+        <input
+          type="text"
+          name="skillsToLearn"
+          placeholder="Skills you want to learn (comma separated)"
+          value={formData.skillsToLearn}
+          onChange={handleChange}
+          className="w-full border border-gray-300 p-2 rounded-lg"
+          required
+        />
+
+        <input
+          type="text"
+          name="experience"
+          placeholder="Experience (e.g., 2 years, Internship)"
+          value={formData.experience}
+          onChange={handleChange}
+          className="w-full border border-gray-300 p-2 rounded-lg"
+        />
+
+        <input
+          type="text"
+          name="experienceType"
+          placeholder="Experience Type (e.g., Professional, Academic)"
+          value={formData.experienceType}
+          onChange={handleChange}
+          className="w-full border border-gray-300 p-2 rounded-lg"
         />
 
         <input

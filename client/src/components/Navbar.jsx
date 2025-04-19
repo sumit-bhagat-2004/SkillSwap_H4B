@@ -1,15 +1,44 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useUser, useAuth, SignInButton, UserButton } from "@clerk/clerk-react";
-import { Menu, X, RefreshCw } from "lucide-react";
+import { Bell, RefreshCw, X, Menu } from "lucide-react";
+import {
+  SignInButton,
+  SignedIn,
+  SignedOut,
+  useUser,
+  useAuth,
+  UserButton,
+} from "@clerk/clerk-react";
 import { axiosInstance } from "../lib/axiosInstance";
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const { isSignedIn, getToken } = useAuth();
   const { user } = useUser();
-  const { getToken, isSignedIn } = useAuth();
-
+  const [isOpen, setIsOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [requests, setRequests] = useState([]);
   const navigate = useNavigate();
+
+  const toggleModal = () => setModalOpen(!modalOpen);
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      if (!isSignedIn) return;
+      try {
+        const token = await getToken();
+        const res = await axiosInstance.get("/request/get-requests", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setRequests(res.data.requests);
+      } catch (err) {
+        console.error("Failed to fetch requests", err);
+      }
+    };
+
+    if (modalOpen) fetchRequests();
+  }, [modalOpen]);
 
   useEffect(() => {
     const syncUserToDB = async () => {
@@ -39,85 +68,123 @@ const Navbar = () => {
   }, [isSignedIn]);
 
   return (
-    <nav className="bg-white border-b border-gray-200 px-4 lg:px-6 py-3.5">
-      <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
-        <Link to="/" className="flex items-center">
-          <RefreshCw className="h-8 w-8 mr-2 text-teal-600" />
-          <span className="self-center text-xl font-semibold whitespace-nowrap">
-            Skill<span className="text-teal-600">Swap</span>
-          </span>
-        </Link>
+    <>
+      <nav className="bg-white border-b border-gray-200 px-4 lg:px-6 py-3.5">
+        <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
+          <Link to="/" className="flex items-center">
+            <RefreshCw className="h-8 w-8 mr-2 text-teal-600" />
+            <span className="self-center text-xl font-semibold whitespace-nowrap">
+              Skill<span className="text-teal-600">Swap</span>
+            </span>
+          </Link>
 
-        <div className="flex items-center lg:order-2">
-          {!isSignedIn ? (
-            <>
-              <SignInButton mode="modal">
-                <button className="text-gray-800 hover:bg-gray-50 font-medium rounded-lg text-sm px-4 py-2 lg:py-2.5 mr-2">
-                  Log in
-                </button>
-              </SignInButton>
-              <SignInButton mode="modal">
-                <button className="text-white bg-teal-600 hover:bg-teal-700 font-medium rounded-lg text-sm px-4 py-2 lg:py-2.5 mr-2 transition-colors duration-200">
-                  Get started
-                </button>
-              </SignInButton>
-            </>
-          ) : (
-            <>
+          <div className="flex items-center lg:order-2 space-x-4">
+            <SignedIn>
+              <button
+                onClick={toggleModal}
+                className="relative text-gray-600 hover:text-teal-600"
+                title="View Requests"
+              >
+                <Bell size={22} />
+                {requests.length > 0 && (
+                  <span className="absolute top-0 right-0 bg-red-500 text-white text-xs px-1 rounded-full">
+                    {requests.length}
+                  </span>
+                )}
+              </button>
+
               <Link
                 to="/profile"
-                className="text-gray-800 hover:bg-gray-50 font-medium rounded-lg text-sm px-4 py-2 lg:py-2.5 mr-2"
+                className="bg-teal-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-teal-700 transition"
               >
                 Profile
               </Link>
               <UserButton afterSignOutUrl="/" />
-            </>
-          )}
+            </SignedIn>
 
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            type="button"
-            className="inline-flex items-center p-2 ml-1 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="bg-teal-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-teal-700 transition">
+                  Sign In
+                </button>
+              </SignInButton>
+            </SignedOut>
+
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              type="button"
+              className="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none"
+            >
+              <span className="sr-only">Toggle menu</span>
+              {isOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+
+          <div
+            className={`${
+              isOpen ? "block" : "hidden"
+            } justify-between items-center w-full lg:flex lg:w-auto lg:order-1`}
           >
-            <span className="sr-only">Toggle menu</span>
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+            <ul className="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
+              <li>
+                <Link to="/" className="text-gray-700 hover:text-teal-600">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/matches"
+                  className="text-gray-700 hover:text-teal-600"
+                >
+                  Find Matches
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/dashboard"
+                  className="text-gray-700 hover:text-teal-600"
+                >
+                  Dashboard
+                </Link>
+              </li>
+            </ul>
+          </div>
         </div>
+      </nav>
 
-        <div
-          className={`${
-            isOpen ? "block" : "hidden"
-          } justify-between items-center w-full lg:flex lg:w-auto lg:order-1`}
-        >
-          <ul className="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
-            <li>
-              <Link
-                to="/"
-                className="block py-2 pr-4 pl-3 text-gray-700 hover:text-teal-600"
-              >
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/matches"
-                className="block py-2 pr-4 pl-3 text-gray-700 hover:text-teal-600"
-              >
-                Find Matches
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/dashboard"
-                className="block py-2 pr-4 pl-3 text-gray-700 hover:text-teal-600"
-              >
-                Dashboard
-              </Link>
-            </li>
-          </ul>
+      {modalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-start pt-24 z-50">
+          <div className="bg-white max-w-md w-full rounded-lg shadow-lg p-6 relative">
+            <button
+              onClick={toggleModal}
+              className="absolute top-3 right-4 text-gray-400 hover:text-gray-600"
+            >
+              <X size={20} />
+            </button>
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Incoming Requests
+            </h2>
+            {requests.length === 0 ? (
+              <p className="text-gray-500 text-sm">No requests received.</p>
+            ) : (
+              <ul className="space-y-4 max-h-[300px] overflow-y-auto">
+                {requests.map((req, idx) => (
+                  <li key={idx} className="p-3 border rounded-md bg-gray-50">
+                    <p className="font-medium">{req.fromUser?.firstName}</p>
+                    <p className="text-sm text-gray-600">
+                      Wants to learn: {req.skillToLearn}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Requested at: {new Date(req.createdAt).toLocaleString()}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
-      </div>
-    </nav>
+      )}
+    </>
   );
 };
 

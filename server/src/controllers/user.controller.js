@@ -62,7 +62,16 @@ export const onboardUser = async (req, res) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const { skills, projects, location, role, availability } = req.body;
+    const {
+      skills,
+      projects,
+      location,
+      role,
+      availability,
+      skillsToLearn,
+      experience,
+      experienceType,
+    } = req.body;
 
     if (!skills || !projects || !location || !role || !availability) {
       return res.status(401).json({ message: "Nothing to update" });
@@ -88,9 +97,12 @@ export const onboardUser = async (req, res) => {
       {
         $set: {
           skills: skills?.split(",").map((s) => s.trim()) || [],
+          skillsToLearn: skillsToLearn?.split(",").map((s) => s.trim()) || [],
           projects: projects?.split(",").map((p) => p.trim()) || [],
           location,
           role,
+          experience,
+          experienceType,
           availability: availability?.split(",").map((d) => d.trim()) || [],
           isOnBoarded: true,
         },
@@ -131,6 +143,36 @@ export const getUserDetails = async (req, res) => {
     }
 
     res.status(200).json({ user });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getMatchingUsers = async (req, res) => {
+  try {
+    const { userId } = getAuth(req);
+    const { skill } = req.query;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const currentUser = await User.findOne({ clerkId: userId });
+    if (!currentUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const filter = {
+      clerkId: { $ne: userId },
+    };
+
+    if (skill) {
+      filter.skills = { $regex: new RegExp(`^${skill}$`, "i") };
+    }
+
+    const users = await User.find(filter).select("-email");
+
+    return res.status(200).json({ users });
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });
   }
