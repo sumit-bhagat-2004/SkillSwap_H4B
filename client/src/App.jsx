@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Footer from "./components/Footer";
 import Onboarding from "./pages/Onboarding";
 import Profile from "./pages/Profile";
+import Matches from "./pages/Matches";
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/profile/:clerkId" element={<Profile />} />
+        <Route path="/matches" element={<Matches />} />
       </Routes>
       <Footer />
     </div>

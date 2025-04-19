@@ -122,6 +122,27 @@ const ProfilePage = () => {
               "Not specified"}
           </p>
         </div>
+
+        <div className="bg-gray-50 p-4 rounded-xl shadow-sm">
+          <h2 className="text-md font-semibold text-gray-700 mb-1">
+            🎯 Skills to Learn
+          </h2>
+          <p className="text-gray-600">
+            {profile.skillsToLearn?.join(", ") || "Not specified"}
+          </p>
+        </div>
+
+        <div className="bg-gray-50 p-4 rounded-xl shadow-sm">
+          <h2 className="text-md font-semibold text-gray-700 mb-1">
+            💼 Experience
+          </h2>
+          <p className="text-gray-600">
+            {profile.experience || "Not specified"}
+          </p>
+          <p className="text-gray-500 text-sm">
+            {profile.experienceType || ""}
+          </p>
+        </div>
       </div>
 
       <div className="mt-8">
