@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useUser, useAuth, SignInButton, UserButton } from "@clerk/clerk-react";
 import { Menu, X, RefreshCw } from "lucide-react";
 import { axiosInstance } from "../lib/axiosInstance";
@@ -9,19 +9,26 @@ const Navbar = () => {
   const { user } = useUser();
   const { getToken, isSignedIn } = useAuth();
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     const syncUserToDB = async () => {
       if (isSignedIn) {
         const token = await getToken();
 
         try {
-          await axiosInstance.post(
+          const res = await axiosInstance.post(
             "/user/save",
             {},
             {
               headers: { Authorization: `Bearer ${token}` },
             }
           );
+
+          const isOnboarded = res.data.user?.isOnboarded;
+          if (!isOnboarded) {
+            navigate("/onboarding");
+          }
         } catch (err) {
           console.error("User sync failed", err);
         }

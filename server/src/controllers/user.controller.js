@@ -39,6 +39,7 @@ export const saveAuthenticatedUser = async (req, res) => {
       projects: [],
       role: "",
       location: "",
+      isOnBoarded: false,
     });
 
     await newUser.save();
@@ -91,6 +92,7 @@ export const onboardUser = async (req, res) => {
           location,
           role,
           availabitity: availability?.split(",").map((d) => d.trim()) || [],
+          isOnBoarded: true,
         },
         $push: {
           certificates: { $each: certificateUrls },

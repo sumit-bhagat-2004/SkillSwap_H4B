@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
     },
+    isOnBoarded: {
+      type: Boolean,
+      default: false,
+    },
     skills: [
       {
         type: String,
