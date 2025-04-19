@@ -6,6 +6,7 @@ import http from "http";
 import { Server } from "socket.io";
 import userRoutes from "./routes/user.routes.js";
 import requestRoutes from "./routes/request.routes.js";
+import exchangeRoutes from "./routes/exchange.routes.js";
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use(express.urlencoded());
 
 app.use("/api/user", userRoutes);
 app.use("/api/request", requestRoutes);
+app.use("/api/exchange", exchangeRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello world");
