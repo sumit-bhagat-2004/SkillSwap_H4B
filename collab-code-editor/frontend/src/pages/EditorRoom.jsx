@@ -5,6 +5,7 @@ import CodeEditor from "../components/Editor"
 import LanguageSelector from "../components/LanguageSelector"
 import OutputConsole from "../components/OutputConsole"
 import SaveFileButton from "../components/SaveFileButton"
+import VideoCall from "../components/VideoCall" // Import the VideoCall component
 
 const languages = [
   { id: 45, name: "Assembly (NASM 2.14.02)" },
@@ -134,10 +135,7 @@ export default function EditorRoom() {
       {/* Left Side: Code Editor */}
       <div className="flex-1 bg-white p-4 rounded-xl shadow-md">
         {isEditorSwapped ? (
-          <div className="h-full flex items-center justify-center">
-            <h3 className="text-lg font-bold mb-2">Video Call Feature</h3>
-            <p className="text-gray-500">Video call feature will be here.</p>
-          </div>
+          <VideoCall roomId={roomId} /> // Use the VideoCall component here
         ) : (
           <CodeEditor roomId={roomId} initialCode={code} onCodeChange={setCode} />
         )}
@@ -182,10 +180,7 @@ export default function EditorRoom() {
               className="h-full"
             />
           ) : (
-            <div className="h-full flex items-center justify-center">
-              <h3 className="text-lg font-bold mb-2">Video Call Feature</h3>
-              <p className="text-gray-500">Video call feature will be here.</p>
-            </div>
+            <VideoCall roomId={roomId} /> // Use the VideoCall component here
           )}
         </div>
         <button
