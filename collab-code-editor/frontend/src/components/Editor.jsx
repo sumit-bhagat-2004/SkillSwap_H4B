@@ -13,8 +13,8 @@ export default function CodeEditor({ roomId, initialCode, onCodeChange }) {
 
   useEffect(() => {
     const handleRemoteChange = ({ code: incomingCode }) => {
-      setCode(incomingCode)
-      onCodeChange(incomingCode) // Sync the parent component's state with remote changes
+      setCode(incomingCode) // Update the editor with the new code
+      onCodeChange(incomingCode) // Notify the parent component
     }
 
     socket.on("code_change", handleRemoteChange)
