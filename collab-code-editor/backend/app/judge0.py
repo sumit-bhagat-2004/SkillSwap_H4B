@@ -8,7 +8,7 @@ class CodeSubmission(BaseModel):
     stdin: str = ""
 
 # Self-hosted Judge0 base URL (Docker default)
-JUDGE0_URL = "http://35.154.64.76:2358//submissions"
+JUDGE0_URL = "http://localhost:2358/submissions"
 
 HEADERS = {
     "Content-Type": "application/json"
