@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Calendar, Clock, Video, MessageSquare } from "lucide-react";
 import { axiosInstance } from "../lib/axiosInstance";
 import { useAuth } from "@clerk/clerk-react";
-import { Link } from "react-router-dom";
 
 const ActiveExchanges = () => {
   const [exchanges, setExchanges] = useState([]);
@@ -21,8 +20,6 @@ const ActiveExchanges = () => {
 
     fetchExchanges();
   }, []);
-
-  console.log(exchanges);
 
   const formatDate = (date) => {
     const parsedDate = new Date(date);
@@ -108,12 +105,10 @@ const ActiveExchanges = () => {
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">
-                <Link to={`/${exchange._id}`}>
-                  <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700">
-                    <Video size={16} className="mr-2" />
-                    Start Session
-                  </button>
-                </Link>
+                <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700">
+                  <Video size={16} className="mr-2" />
+                  Start Session
+                </button>
                 <button className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50">
                   <MessageSquare size={16} className="mr-2" />
                   Message
