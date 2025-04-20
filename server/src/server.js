@@ -32,10 +32,6 @@ app.use("/api/user", userRoutes);
 app.use("/api/request", requestRoutes);
 app.use("/api/exchange", exchangeRoutes);
 
-app.get("/", (req, res) => {
-  res.send("Hello world");
-});
-
 io.on("connection", (socket) => {
   console.log(`user connected: ${socket.id}`);
 
