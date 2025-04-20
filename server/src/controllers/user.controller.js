@@ -177,3 +177,89 @@ export const getMatchingUsers = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const updateUserProfile = async (req, res) => {
+  try {
+    const { userId } = getAuth(req);
+    const {
+      skills,
+      projects,
+      location,
+      role,
+      availability,
+      skillsToLearn,
+      experience,
+      experienceType,
+    } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    let certificateUrls = [];
+
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const base64Image = `data:${
+          file.mimetype
+        };base64,${file.buffer.toString("base64")}`;
+        const uploaded = await cloudinary.uploader.upload(base64Image, {
+          folder: "certificates",
+          resource_type: "image",
+        });
+        certificateUrls.push(uploaded.secure_url);
+      }
+    }
+
+    const $set = {};
+    const $addToSet = {};
+
+    if (location) $set.location = location;
+    if (role) $set.role = role;
+    if (experience) $set.experience = experience;
+    if (experienceType) $set.experienceType = experienceType;
+    if (availability)
+      $set.availability = availability.split(",").map((d) => d.trim());
+
+    if (skills)
+      $addToSet.skills = { $each: skills.split(",").map((s) => s.trim()) };
+
+    if (projects)
+      $addToSet.projects = {
+        $each: projects.split(",").map((p) => p.trim()),
+      };
+
+    if (skillsToLearn)
+      $addToSet.skillsToLearn = {
+        $each: skillsToLearn.split(",").map((s) => s.trim()),
+      };
+
+    if (certificateUrls.length)
+      $addToSet.certificates = { $each: certificateUrls };
+
+    const update = {};
+    if (Object.keys($set).length > 0) update.$set = $set;
+    if (Object.keys($addToSet).length > 0) update.$addToSet = $addToSet;
+
+    if (!Object.keys(update).length) {
+      return res.status(400).json({ message: "Nothing to update" });
+    }
+
+    const updatedUser = await User.findOneAndUpdate(
+      { clerkId: userId },
+      update,
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found in database" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Profile updated successfully", user: updatedUser });
+  } catch (error) {
+    console.error("Update failed:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};

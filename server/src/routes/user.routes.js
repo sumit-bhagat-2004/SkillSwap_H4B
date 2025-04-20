@@ -5,6 +5,7 @@ import {
   getUserDetails,
   onboardUser,
   saveAuthenticatedUser,
+  updateUserProfile,
 } from "../controllers/user.controller.js";
 import { requireAuth } from "@clerk/express";
 import upload from "../middlewares/multer.js";
@@ -31,6 +32,13 @@ router.get(
   clerkAuthMiddleware,
   requireAuth(),
   getMatchingUsers
+);
+router.put(
+  "/update-profile",
+  clerkAuthMiddleware,
+  requireAuth(),
+  upload.any(),
+  updateUserProfile
 );
 
 export default router;
