@@ -7,6 +7,8 @@ import Onboarding from "./pages/Onboarding";
 import Profile from "./pages/Profile";
 import Matches from "./pages/Matches";
 import Dashboard from "./pages/Dashboard";
+import Home1 from "./pages/Home1";
+import EditorRoom from "./pages/EditorRoom";
 
 const App = () => {
   return (
@@ -19,6 +21,8 @@ const App = () => {
         <Route path="/profile/:clerkId" element={<Profile />} />
         <Route path="/matches" element={<Matches />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/:roomId" element={<Home1 />} />
+        <Route path="/room/:roomId" element={<EditorRoom />} />
       </Routes>
       <Footer />
     </div>
