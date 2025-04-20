@@ -45,8 +45,14 @@ const userSchema = new mongoose.Schema(
     ],
     projects: [
       {
-        type: String,
-        default: [],
+        name: {
+          type: String,
+          required: true,
+        },
+        gitHubUrl: {
+          type: String,
+          required: true,
+        },
       },
     ],
     availability: [

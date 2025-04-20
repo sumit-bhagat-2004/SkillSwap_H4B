@@ -1,16 +1,16 @@
-import { io } from "socket.io-client"
+import { io } from "socket.io-client";
 
-const socket = io("http://localhost:6500", {
+const socket = io("https://skillswap-h4b.onrender.com", {
   transports: ["websocket", "polling"],
-})
+});
 
 // Debug logs
 socket.on("connect", () => {
-  console.log("✅ Connected to server. Socket ID:", socket.id)
-})
+  console.log("✅ Connected to server. Socket ID:", socket.id);
+});
 
 socket.on("connect_error", (err) => {
-  console.error("❌ Connection error:", err.message)
-})
+  console.error("❌ Connection error:", err.message);
+});
 
-export default socket
+export default socket;
