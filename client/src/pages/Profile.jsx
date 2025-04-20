@@ -139,7 +139,7 @@ const ProfilePage = () => {
           />
           <div>
             <h1 className="text-3xl font-bold text-gray-800">
-              {profile.firstName}
+              {profile.firstName} {profile.lastName}
             </h1>
             <p className="text-teal-600 text-md">{profile.role || "No role"}</p>
           </div>
