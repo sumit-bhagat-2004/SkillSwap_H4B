@@ -44,6 +44,7 @@ function getExtension(language) {
     c: ".c",
     cpp: ".cpp",
     typescript: ".ts",
+    go: ".go"
   };
   return map[language.toLowerCase()] || ".txt";
 }
