@@ -12,14 +12,13 @@ exports.analyzeRepo = async (req, res) => {
     const files = await getRepoFiles(owner, repo, language);
     const analysis = analyzeCodeFiles(files);
 
-    // Determine the status based on the analysis
     let status;
     if (analysis.totalFiles === 0) {
-      status = "declined"; // No files found for the specified language
+      status = "declined"; 
     } else if (analysis.avgLinesPerFile > 100) {
-      status = "error in verification"; // Example condition for error
+      status = "error in verification";
     } else {
-      status = "verified"; // Analysis passed successfully
+      status = "verified";
     }
 
     return res.json({

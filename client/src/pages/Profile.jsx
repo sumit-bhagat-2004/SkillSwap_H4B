@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useUser, useAuth } from "@clerk/clerk-react";
 import { useParams } from "react-router-dom";
+import GitHubRepoAnalyzer from "./GithubRepoAnalyzer";
 import { axiosInstance } from "../lib/axiosInstance";
 import {
   MapPin,
@@ -221,7 +222,12 @@ const ProfilePage = () => {
           }
         />
       </div>
-
+      <div className="mt-10">
+        <h2 className="text-lg font-semibold text-gray-700 mb-4">
+          Analyze GitHub Repositories
+        </h2>
+        <GithubRepoAnalyzer defaultRepos={profile.projects || []} />
+      </div>
       <div className="mt-8">
         <h2 className="text-lg font-semibold text-gray-700 flex items-center gap-2 mb-3">
           <Upload size={18} /> Certificates
