@@ -83,13 +83,6 @@ export default function EditorRoom() {
 
     socket.emit("join_room", { room: roomId, username: savedUsername })
 
-    socket.on("room_joined", ({ code: incomingCode, stdin: incomingStdin, language_id }) => {
-      setConnected(true)
-      setCode(incomingCode)
-      setStdin(incomingStdin)
-      setLanguage(language_id)
-    })
-
     socket.on("executionResult", (result) => {
       setOutput(result.stdout || result.stderr || "No output.")
     })
@@ -103,10 +96,23 @@ export default function EditorRoom() {
     })
 
     return () => {
-      socket.off("room_joined")
       socket.off("executionResult")
       socket.off("stdin_change")
       socket.off("language_change")
+    }
+  }, [roomId])
+
+  useEffect(() => {
+    socket.on("room_joined", ({ code: incomingCode, stdin: incomingStdin, language_id }) => {
+      console.log("Room joined. Incoming code:", incomingCode)
+      setConnected(true)
+      setCode(incomingCode) // Update the editor with the current code
+      setStdin(incomingStdin) // Update the stdin
+      setLanguage(language_id) // Update the language
+    })
+
+    return () => {
+      socket.off("room_joined")
     }
   }, [roomId])
 
