@@ -15,12 +15,12 @@ const PORT = process.env.PORT || 8000;
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  origin: "http://localhost:5173",
+  origin: "http://systemnotfound.xyz",
 });
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "http://systemnotfound.xyz",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
