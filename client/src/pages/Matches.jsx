@@ -20,9 +20,7 @@ const Matches = () => {
         `/user/match-users${category ? `?skill=${category}` : ""}`
       );
 
-      console.log("API Response:", res.data); // Helpful debug line
-
-      // Assuming API returns an array of users directly
+      console.log("API Response:", res.data);
       const usersArray = Array.isArray(res.data)
         ? res.data
         : res.data.users || [];
