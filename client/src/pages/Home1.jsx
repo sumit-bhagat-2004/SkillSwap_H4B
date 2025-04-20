@@ -3,7 +3,7 @@ import { useEffect } from "react"
 import UsernamePrompt from "../components/UsernamePrompt"
 import socket from "../socket" // Import the shared socket instance
 
-export default function Home() {
+export default function Home1() {
   const navigate = useNavigate()
 
   useEffect(() => {

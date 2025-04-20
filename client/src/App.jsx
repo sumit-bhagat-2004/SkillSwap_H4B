@@ -7,6 +7,8 @@ import Onboarding from "./pages/Onboarding";
 import Profile from "./pages/Profile";
 import Matches from "./pages/Matches";
 import Dashboard from "./pages/Dashboard";
+import EditorRoom from "./pages/EditorRoom"; // Import the EditorRoom component
+import Home1 from "./pages/Home1";
 
 const App = () => {
   return (
@@ -19,7 +21,8 @@ const App = () => {
         <Route path="/profile/:clerkId" element={<Profile />} />
         <Route path="/matches" element={<Matches />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/room/:roomId" element={<Dashboard />} />
+        <Route path="/:roomId" element={<Home1/>} />
+        <Route path="/room/:roomId" element={<EditorRoom />} /> {/* Added EditorRoom route */}
       </Routes>
       <Footer />
     </div>

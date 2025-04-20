@@ -108,7 +108,7 @@ const ActiveExchanges = () => {
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">
-                <Link to={`/room/${exchange._id}`}>
+                <Link to={`/${exchange._id}`}>
                   <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700">
                     <Video size={16} className="mr-2" />
                     Start Session
