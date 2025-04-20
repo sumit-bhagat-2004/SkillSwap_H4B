@@ -74,22 +74,40 @@ export const onboardUser = async (req, res) => {
     } = req.body;
 
     if (!skills || !projects || !location || !role || !availability) {
-      return res.status(401).json({ message: "Nothing to update" });
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    let parsedProjects = [];
+    try {
+      parsedProjects = JSON.parse(projects);
+      if (
+        !Array.isArray(parsedProjects) ||
+        parsedProjects.some((p) => !p.name || !p.gitHubUrl)
+      ) {
+        return res
+          .status(400)
+          .json({ message: "Each project must have a name and a url" });
+      }
+    } catch (err) {
+      return res
+        .status(400)
+        .json({ message: "Invalid projects format. Must be a JSON array." });
     }
 
     let certificateUrls = [];
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const base64Image = `data:${
+          file.mimetype
+        };base64,${file.buffer.toString("base64")}`;
 
-    for (const file of req.files) {
-      const base64Image = `data:${file.mimetype};base64,${file.buffer.toString(
-        "base64"
-      )}`;
+        const uploaded = await cloudinary.uploader.upload(base64Image, {
+          folder: "certificates",
+          resource_type: "image",
+        });
 
-      const uploaded = await cloudinary.uploader.upload(base64Image, {
-        folder: "certificates",
-        resource_type: "image",
-      });
-
-      certificateUrls.push(uploaded.secure_url);
+        certificateUrls.push(uploaded.secure_url);
+      }
     }
 
     const updatedUser = await User.findOneAndUpdate(
@@ -98,7 +116,7 @@ export const onboardUser = async (req, res) => {
         $set: {
           skills: skills?.split(",").map((s) => s.trim()) || [],
           skillsToLearn: skillsToLearn?.split(",").map((s) => s.trim()) || [],
-          projects: projects?.split(",").map((p) => p.trim()) || [],
+          projects: parsedProjects,
           location,
           role,
           experience,
@@ -122,6 +140,7 @@ export const onboardUser = async (req, res) => {
       user: updatedUser,
     });
   } catch (error) {
+    console.error("Onboarding error:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
