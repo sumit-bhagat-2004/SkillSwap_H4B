@@ -20,29 +20,38 @@ const Matches = () => {
         `/user/match-users${category ? `?skill=${category}` : ""}`
       );
 
-      const fetchedUsers = res.data.users.map((user) => ({
+      console.log("API Response:", res.data); // Helpful debug line
+
+      // Assuming API returns an array of users directly
+      const usersArray = Array.isArray(res.data)
+        ? res.data
+        : res.data.users || [];
+
+      const fetchedUsers = usersArray.map((user) => ({
         id: user._id,
         firstName: user.firstName || user.name || "No Name",
         avatar: user.avatar || "https://via.placeholder.com/150",
         location: user.location || "Unknown",
-        skillsOffered: user.skills.map((skill) => ({
-          name: skill,
-          level: "Intermediate", // Default level if not provided
-        })),
+        skillsOffered:
+          user.skills?.map((skill) => ({
+            name: skill,
+            level: "Intermediate", // Default level
+          })) || [],
         skillsWanted:
           user.skillsToLearn?.map((skill) => ({
             name: skill,
-            level: "Beginner", // Default level if not provided
+            level: "Beginner",
           })) || [],
         experience: user.experience || "Not specified",
         experienceType: user.experienceType || "",
         matchScore: Math.floor(Math.random() * 21) + 80,
-        _id: user._id, // required for sending request
+        _id: user._id,
       }));
 
       setMatches(fetchedUsers);
     } catch (error) {
       console.error("Failed to fetch matches:", error);
+      setMatches([]); // Ensure matches is cleared on error
     } finally {
       setLoading(false);
     }
