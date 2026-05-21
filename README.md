@@ -93,3 +93,31 @@ Due to the microservices architecture, running the full suite requires starting 
 cd server
 npm install
 npm run dev
+**2. Start the Frontend Client:**
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+**3. Start the Verification Microservices:**
+
+```bash
+# In separate terminal windows:
+cd certCheck && npm install && node app.js
+cd repoVerify && npm install && node app.js
+```
+
+**4. Start the Collaboration & Execution Engine:**
+
+```bash
+# Start Judge0 via Docker
+cd collab-code-editor/judge0/judge0-v1.13.0/judge0-v1.13.0
+docker-compose up -d
+
+# Start the FastAPI WebSocket Server
+cd ../../../backend
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
