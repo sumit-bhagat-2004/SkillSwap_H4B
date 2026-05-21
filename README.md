@@ -1,129 +1,95 @@
-# SkillSwap — A Smart Skill Barter Platform
+# SkillSwap 🔄🧠
 
-## Problem It Solves
-Many people want to learn new skills but lack access to paid courses or mentors. Meanwhile, others have valuable knowledge they can share. There’s no structured, peer-to-peer platform to exchange skills fairly and effectively.
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
+![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
+![Socket.io](https://img.shields.io/badge/Socket.io-black?style=for-the-badge&logo=socket.io&badgeColor=010101)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
-## Solution
-SkillSwap is a web-based platform where users can barter their skills with others — e.g., "I’ll teach you Python if you teach me Graphic Design." The platform uses machine learning to smartly match users based on their offered and desired skills.
+**SkillSwap** is an advanced, peer-to-peer knowledge exchange and real-time collaboration platform. It empowers users to teach and learn from each other through algorithmic matching, live video communication, and a fully synchronized collaborative coding environment. To ensure trust, the platform features automated skill validation via GitHub repository analysis and OCR-based certificate verification.
 
-## Key Features
-- **Skill Profile Creation**: Add what you can teach and want to learn.
-- **ML-Based Smart Matching**: Intelligent recommendations using NLP (BERT/Cosine similarity).
-- **Real-Time Chat & Scheduler**: Coordinate sessions through built-in messaging.
-- **Skill Verification**: Upload projects/resumes for auto-skill extraction (NER).
-- **Resource Suggestions**: Get relevant learning materials post-matching.
-- **Gamification**: Earn badges/points for completed sessions.
+---
 
-## Tech Stack
-- **Frontend**: React + Tailwind CSS
-- **Backend**: Node.js + Express
-- **Database**: MongoDB
-- **Auth**: Clerk/Auth0
-- **ML/NLP**: Python (FastAPI or Flask microservice) with BERT/spaCy
-- **Real-time**: Socket.io for messaging
-- **Deployment**: Render / Vercel / Replit
+## 🚀 Platform Ecosystem & Microservices Architecture
 
-## Setup Instructions
+SkillSwap is built using a highly scalable, decoupled microservices architecture to handle distinct, resource-intensive tasks efficiently:
+
+1. **Main Client (`/client`):** The central React.js frontend application featuring user onboarding, match filtering, and the collaboration dashboard.
+2. **Core API Server (`/server`):** The central Node.js/Express backend managing users, exchange requests, database interactions, and media uploads.
+3. **Collaboration Engine (`/collab-code-editor/backend`):** A high-performance **Python/FastAPI** service managing low-latency WebSocket connections for real-time keystroke synchronization and code execution.
+4. **Certificate Verification Service (`/certCheck`):** An independent Express service utilizing `tesseract.js` (OCR) and `pdf-parse` to automatically extract and validate user-uploaded certificates.
+5. **GitHub Analyzer Service (`/repoVerify`):** A dedicated service that interfaces with the GitHub API to analyze user repositories and validate coding proficiency.
+6. **Code Execution Sandbox (`/collab-code-editor/judge0`):** A Dockerized **Judge0** instance providing isolated, secure, multi-language code compilation and execution.
+
+---
+
+## 🛠️ Tech Stack
+
+### **Frontend**
+* **Framework:** React.js (Vite)
+* **Routing:** React Router DOM
+* **Editor:** Monaco Editor (`@monaco-editor/react`)
+* **Real-time:** Socket.io-client, WebRTC (for Video Calls)
+* **Styling:** Tailwind CSS
+
+### **Backend & Microservices**
+* **Core API:** Node.js, Express.js
+* **Collab API:** Python, FastAPI, python-socketio
+* **Database:** MongoDB (Mongoose ODM)
+* **Authentication:** Clerk (`@clerk/clerk-sdk-node`)
+* **Media Management:** Cloudinary API, Multer
+* **AI/Parsing:** Tesseract.js (Optical Character Recognition), PDF-Parse
+
+### **Infrastructure & Execution**
+* **Code Compiler:** Judge0 (Dockerized)
+* **Containerization:** Docker & Docker Compose
+
+---
+
+## 🌟 Core Features
+
+### 🤝 **Intelligent Matchmaking & Swapping**
+* **Algorithmic Matching:** Users are paired based on their "Offered Skills" vs. "Desired Skills" (`MatchFilters`, `MatchesList`).
+* **Exchange Lifecycle:** End-to-end management of skill exchange requests (Pending, Accepted, Completed).
+
+### 💻 **Real-Time Collaboration Workspace**
+* **Live Video Calling:** Integrated WebRTC/Socket-based video communication (`VideoCall.jsx`) for seamless face-to-face mentoring.
+* **Synchronized Code Editor:** Google Docs-style real-time typing using Monaco Editor and FastAPI WebSockets (`EditorRoom.jsx`).
+* **Live Code Execution:** Write, compile, and run code in multiple languages directly in the browser via the Judge0 execution engine (`OutputConsole.jsx`).
+
+### 🛡️ **Automated Trust & Verification**
+* **GitHub Repository Analysis:** Automatically evaluates a user's GitHub activity, languages used, and repository quality to verify their claimed tech skills.
+* **Smart Certificate OCR:** Users upload PDFs or images of course certificates, which the platform parses using Optical Character Recognition to extract names, dates, and granting institutions.
+
+---
+
+## 🔒 Security & Production Feasibility
+
+SkillSwap is designed with **Enterprise-Grade** security patterns and is highly feasible for scalable production deployment:
+
+* **Robust Identity Management:** Leverages **Clerk** for secure, token-based authentication and session management. API routes are protected by custom `clerkAuth` middleware.
+* **Isolated Code Execution:** User-submitted code is never executed directly on the host server. It is routed to the **Judge0** Docker container, providing strict sandboxing, memory limits, and timeout constraints to prevent malicious payloads or infinite loops.
+* **Independent Scalability:** By utilizing a microservices architecture, CPU-heavy tasks (like OCR parsing or FastAPI WebSocket handling) can be scaled horizontally on AWS/GCP independently of the main Express CRUD API.
+* **Secure Asset Delivery:** Profile pictures and documents are securely processed via `multer` and uploaded to **Cloudinary**, ensuring fast CDN delivery and offloading storage bandwidth from the main server.
+
+---
+
+## 💻 Getting Started
+
+Due to the microservices architecture, running the full suite requires starting multiple services.
 
 ### Prerequisites
-- Node.js (v16 or higher)
-- Python (v3.8 or higher)
-- MongoDB (local or cloud instance)
-- Docker (optional, for Judge0 setup)
+* Node.js (v18+)
+* Python (3.10+)
+* Docker & Docker Compose
+* MongoDB instance (Local or Atlas)
+* Clerk API Keys & Cloudinary API Keys
 
-### Backend Setup
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-repo/SkillSwap.git
-   cd SkillSwap/collab-code-editor/backend
-   ```
+### Running the Environment locally
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Set up environment variables:
-   Create a `.env` file in the `backend` directory with the following:
-   ```env
-   MONGO_URI=<your-mongodb-uri>
-   JUDGE0_URL=http://localhost:2358/submissions
-   ```
-
-4. Start the backend server:
-   ```bash
-   npm start
-   ```
-
-### Frontend Setup
-1. Navigate to the frontend directory:
-   ```bash
-   cd ../client
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start the development server:
-   ```bash
-   npm start
-   ```
-
-4. Open the app in your browser at `http://localhost:3000`.
-
-### Judge0 Setup (Optional for Code Execution)
-1. Pull the Judge0 Docker image:
-   ```bash
-   docker pull judge0/api
-   ```
-
-2. Run the Judge0 container:
-   ```bash
-   docker run -d -p 2358:2358 judge0/api
-   ```
-
-### Machine Learning Microservice Setup
-1. Navigate to the `ml-service` directory:
-   ```bash
-   cd ../ml-service
-   ```
-
-2. Create a virtual environment and activate it:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Start the ML microservice:
-   ```bash
-   uvicorn app:app --reload
-   ```
-
-### Deployment
-The project is deployed at **[SkillSwap](https://systemnotfound.xyz)**.
-
-## Contributing
-1. Fork the repository.
-2. Create a new branch:
-   ```bash
-   git checkout -b feature-name
-   ```
-3. Commit your changes:
-   ```bash
-   git commit -m "Add feature-name"
-   ```
-4. Push to your branch:
-   ```bash
-   git push origin feature-name
-   ```
-5. Open a pull request.
-
-## License
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+**1. Start the MongoDB & Backend Server:**
+```bash
+cd server
+npm install
+npm run dev
